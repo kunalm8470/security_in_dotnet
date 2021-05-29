@@ -29,7 +29,7 @@ AES algorithm comes with 128, 256 bit key sizes. The bigger the key size is hard
 We are using CBC mode in which the plain text is broken into blocks 
 and encrypted. Each block is then encrypted separately with using IV for the first block and passing the next IV from the output of first block and so on.
 
-[`SymmetricKeyEncryption`](./SymmetricKeyEncryption/SymmetricKeyEncryption/SymmetricKeyEncryption.cs) is a wrapper over .NET implementation of AES which then [**encrypts**](./SymmetricKeyEncryption/SymmetricKeyEncryption/SymmetricKeyEncryption.cs#L35-42) and [**decrypts**](./SymmetricKeyEncryption/SymmetricKeyEncryption/SymmetricKeyEncryption.cs#L26-33) respectively.
+[`SymmetricKeyEncryption`](./SymmetricKeyEncryption/SymmetricKeyEncryption/SymmetricKeyEncryption.cs) is a wrapper over .NET implementation of AES which then [encrypts](./SymmetricKeyEncryption/SymmetricKeyEncryption/SymmetricKeyEncryption.cs#L35-L42) and [decrypts](./SymmetricKeyEncryption/SymmetricKeyEncryption/SymmetricKeyEncryption.cs#L26-L33) respectively.
 
 ### **Asymmetric Key Encryption**
 
