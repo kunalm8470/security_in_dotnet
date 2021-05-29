@@ -8,7 +8,6 @@
 - [Basic Authentication](#basic-authentication)
 
 ## Cryptography 101
-___
 
 Cryptography in .NET can be done using hashing, encryption and decryption using symmetric and asymmetric key algorithms.
 
@@ -54,7 +53,6 @@ openssl rsa -pubout -in private_key.pem -out public_key.pem
 We then read the PEM files using new .NET 5 method [`ImportFromPem`](https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsa.importfrompem) which expects a span of characters, for older .NET versions we can use the BouncyCastle library.
 
 ## Basic Authentication
-___
 
 Basic authentication expects us to pass the credentials in the authorization header in the format for every request.
 
