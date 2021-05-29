@@ -13,8 +13,8 @@ namespace Api.Controllers
         [HttpGet]
         public ActionResult<Todo[]> Get()
         {
-            string username = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            string email = User.FindFirstValue(ClaimTypes.Email);
+            string username = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
             Todo[] todos = new[]
             {
