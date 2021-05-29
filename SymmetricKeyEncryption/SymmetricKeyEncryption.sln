@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryptography101", "Cryptography101\Cryptography101.csproj", "{CEBD6649-D539-4009-A302-A27BAA3DBCB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SymmetricKeyEncryption", "SymmetricKeyEncryption\SymmetricKeyEncryption.csproj", "{8A8F6965-5F2D-4524-8591-C2AB12BA1E1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CEBD6649-D539-4009-A302-A27BAA3DBCB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEBD6649-D539-4009-A302-A27BAA3DBCB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CEBD6649-D539-4009-A302-A27BAA3DBCB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEBD6649-D539-4009-A302-A27BAA3DBCB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A8F6965-5F2D-4524-8591-C2AB12BA1E1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A8F6965-5F2D-4524-8591-C2AB12BA1E1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A8F6965-5F2D-4524-8591-C2AB12BA1E1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A8F6965-5F2D-4524-8591-C2AB12BA1E1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C9F32DF5-E2E7-4332-BF38-3B13B1CE92BF}
+		SolutionGuid = {5D01D026-1034-4D02-8BDF-40E75820DE29}
 	EndGlobalSection
 EndGlobal
