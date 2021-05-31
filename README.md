@@ -6,6 +6,7 @@
     - [Symmetric Key Encryption](#symmetric-key-encryption)
     - [Asymmetric Key Encryption](#Asymmetric-key-encryption)
 - [Basic Authentication](#basic-authentication)
+- [JWT Authentication](#jwt-authentication)
 
 ## Cryptography 101
 
@@ -84,3 +85,70 @@ Schema for the user is -
 ```
 
 Postman [`collection`](https://www.getpostman.com/collections/fdc42ec10f878e04c258) and [`environment variables`](./BasicAuthentication/Local.postman_environment.json) here.
+
+## JWT Authentication
+
+JWT authentication is a self-contained authentication protocol where the token base64 representation of a Javascript object which contains 3 parts seperated by a period (`.`)
+
+1. Algorithm and token metadata
+The algorithm denotes the cryptographic algorithm used to sign the token and the [`key-id`](https://tools.ietf.org/html/rfc7515#section-4.1.4) (kid) if using rotational keys to sign the keys and an [`optional public key link`](https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.2) (jku)
+
+```javascript
+{
+  "alg": "RS512",
+  "typ": "JWT"
+}
+```
+
+2. Payload (Claims)
+The claim is a javascript object representation of important user identity information, these claims can be a set of [`public`](https://datatracker.ietf.org/doc/html/rfc7519#section-4) or even custom private claims too.
+
+```javascript
+{
+  "jti": "d7fc1cb6-712b-4e4b-a984-57b6d8f1afd6",
+  "id": "1",
+  "sub": "johndoe123",
+  "given_name": "John",
+  "family_name": "Doe",
+  "email": "johndoe.123@email.com",
+  "birthdate": "1970-01-01",
+  "nbf": 1622471522,
+  "exp": 1622471822,
+  "iss": "http://localhost:5000",
+  "aud": "http://localhost:5001"
+}
+```
+
+3. Signature
+
+The header and claims part is signed using the same cryptographic algorithm mentioned in the `alg` key in the header, this is done as a tamper-mechanism to detect if the token is modified midway or not.
+
+**External nuget packages used** -
+```shell
+AutoMapper.Extensions.Microsoft.DependencyInjection -> For Automapper .NET Core (API)
+Microsoft.AspNetCore.Authentication.JwtBearer -> For JWT authentication middleware (API)
+Microsoft.EntityFrameworkCore.Tools -> For managing migrations through package manager console (API)
+
+Ardalis.Specification -> For implementing the specification pattern in .NET core (Core)
+Ardalis.Specification.EntityFrameworkCore -> For adding EF core related specification helpers (Core)
+EntityFrameworkCore.Exceptions.SqlServer -> For handling SQL Server exceptions (Core)
+
+BCrypt.Net-Next -> For hashing passwords using BCrypt algorithm (Infrastructure)
+Microsoft.EntityFrameworkCore.SqlServer -> For adding EF core helpers for SQL Server (Infrastructure)
+System.IdentityModel.Tokens.Jwt -> Official library to managing generation and validation JSON Web Tokens in .NET (Infrastructure)
+```
+
+The Auth server exposes the following endpoints -
+* [`/api/Users/Register`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L39-L52) to register the user
+* [`/api/Users/Login`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L54-L75) to login the user and generate the initial set of access token and refresh token
+* [`/api/Users/Token`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L77-L97) to refresh the access token using the refresh token sent
+* [`/api/Users/Revoke`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L99-L112) to revoke the refresh token
+* [`/api/Users/Logout`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L114-L126) to force logout and delete all persisted refresh tokens.
+
+There are 2 pairs of RSA public private keys for signing tokens and validating them for access and refresh token respectively.
+
+Below is the sequence diagram for the JWT authentication -
+
+![Sequence diagram](./JWTAuthentication/JWTAuthenticationFlow.png)
+
+Postman [`collection`](https://www.getpostman.com/collections/d07212e1e222e93cea38) and [`environment variables`](./JWTAuthentication/Local.postman_environment.json).
