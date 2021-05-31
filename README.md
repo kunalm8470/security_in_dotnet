@@ -88,9 +88,9 @@ Postman [`collection`](https://www.getpostman.com/collections/fdc42ec10f878e04c2
 
 ## JWT Authentication
 
-JWT authentication is a self-contained authentication protocol where the token base64 representation of a Javascript object which contains 3 parts seperated by a period (`.`)
+JWT authentication is a self-contained authentication protocol where the token is a base64 representation of a Javascript object which contains 3 parts seperated by a period (`.`)
 
-1. Algorithm and token metadata
+1. Header -<br/>
 The algorithm denotes the cryptographic algorithm used to sign the token and the [`key-id`](https://tools.ietf.org/html/rfc7515#section-4.1.4) (kid) if using rotational keys to sign the keys and an [`optional public key link`](https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.2) (jku)
 
 ```javascript
@@ -100,8 +100,10 @@ The algorithm denotes the cryptographic algorithm used to sign the token and the
 }
 ```
 
-2. Payload (Claims)
+2. Payload (Claims)-<br/>
 The claim is a javascript object representation of important user identity information, these claims can be a set of [`public`](https://datatracker.ietf.org/doc/html/rfc7519#section-4) or even custom private claims too.
+
+A sample claims object looks like below -
 
 ```javascript
 {
@@ -119,11 +121,22 @@ The claim is a javascript object representation of important user identity infor
 }
 ```
 
-3. Signature
-
+3. Signature-<br/>
 The header and claims part is signed using the same cryptographic algorithm mentioned in the `alg` key in the header, this is done as a tamper-mechanism to detect if the token is modified midway or not.
 
-**External nuget packages used** -
+The Auth server exposes the following endpoints -
+* [`/api/Users/Register`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController.cs#L39-L52) to register the user
+* [`/api/Users/Login`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController.cs#L54-L75) to login the user and generate the initial set of access token and refresh token
+* [`/api/Users/Token`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController.cs#L77-L97) to refresh the access token using the refresh token sent
+* [`/api/Users/Revoke`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController.cs#L99-L112) to revoke the refresh token
+* [`/api/Users/Logout`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController.cs#L114-L126) to force logout and delete all persisted refresh tokens.
+
+There are 2 pairs of RSA public private keys for signing tokens and validating them for access and refresh token respectively.
+
+Below is the sequence diagram for the JWT authentication -
+![Sequence diagram](./JWTAuthentication/JWTAuthenticationFlow.png)
+
+**Nuget packages referenced -**
 ```shell
 AutoMapper.Extensions.Microsoft.DependencyInjection -> For Automapper .NET Core (API)
 Microsoft.AspNetCore.Authentication.JwtBearer -> For JWT authentication middleware (API)
@@ -137,18 +150,5 @@ BCrypt.Net-Next -> For hashing passwords using BCrypt algorithm (Infrastructure)
 Microsoft.EntityFrameworkCore.SqlServer -> For adding EF core helpers for SQL Server (Infrastructure)
 System.IdentityModel.Tokens.Jwt -> Official library to managing generation and validation JSON Web Tokens in .NET (Infrastructure)
 ```
-
-The Auth server exposes the following endpoints -
-* [`/api/Users/Register`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L39-L52) to register the user
-* [`/api/Users/Login`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L54-L75) to login the user and generate the initial set of access token and refresh token
-* [`/api/Users/Token`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L77-L97) to refresh the access token using the refresh token sent
-* [`/api/Users/Revoke`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L99-L112) to revoke the refresh token
-* [`/api/Users/Logout`](./JWTAuthentication/auth_server/src/Api/Controllers/UsersController#L114-L126) to force logout and delete all persisted refresh tokens.
-
-There are 2 pairs of RSA public private keys for signing tokens and validating them for access and refresh token respectively.
-
-Below is the sequence diagram for the JWT authentication -
-
-![Sequence diagram](./JWTAuthentication/JWTAuthenticationFlow.png)
 
 Postman [`collection`](https://www.getpostman.com/collections/d07212e1e222e93cea38) and [`environment variables`](./JWTAuthentication/Local.postman_environment.json).
