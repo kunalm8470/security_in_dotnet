@@ -7,6 +7,7 @@
     - [Asymmetric Key Encryption](#Asymmetric-key-encryption)
 - [Basic Authentication](#basic-authentication)
 - [JWT Authentication](#jwt-authentication)
+- [Policy Authorization](#policy-authorization)
 
 ## Cryptography 101
 
@@ -152,3 +153,19 @@ System.IdentityModel.Tokens.Jwt -> Official library to managing generation and v
 ```
 
 Postman [`collection`](https://www.getpostman.com/collections/d07212e1e222e93cea38) and [`environment variables`](./JWTAuthentication/Local.postman_environment.json).
+
+# Policy Authorization
+
+Authorization is the process of allowing access policies to resources.
+
+In .NET we can use the simple role-based authorization or much more granular policy-based authorization.
+
+A policy is composed of a handler and a requirement. The handler acts on the requirement to determine if access is valid or not.
+
+To create a [`requirement`](./PolicyAuthorization/resource_server/src/Api/Authorization/Requirements/CastVoteRequirement.cs) in .NET core, simply implement `IAuthorizationRequirement` interface.
+
+To handle the requirement we override the generic abstract class `AuthorizationHandler` passing the above created requirement as a type and override the [`HandleRequirementAsync`](./PolicyAuthorization/resource_server/src/Api/Authorization/Handlers/CastVoteHandler.cs#L18-L35) method.
+
+After creating the requirements and the handlers, we simply [`register them`](./PolicyAuthorization/resource_server/src/Api/Startup.cs#L61-L71) in Startup.cs
+
+Lastly we can [`decorate`](./PolicyAuthorization/resource_server/src/Api/Controllers/VotersController.cs#L14) the action methods in the controller using the `AuthorizeAttribute` by passing the policy name.
