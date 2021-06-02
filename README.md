@@ -169,3 +169,5 @@ To handle the requirement we override the generic abstract class `AuthorizationH
 After creating the requirements and the handlers, we simply [`register them`](./PolicyAuthorization/resource_server/src/Api/Startup.cs#L61-L71) in Startup.cs
 
 Lastly we can [`decorate`](./PolicyAuthorization/resource_server/src/Api/Controllers/VotersController.cs#L14) the action methods in the controller using the `AuthorizeAttribute` by passing the policy name.
+
+Postman [`collection`](https://www.getpostman.com/collections/30c9de093784ab204573) and [`environment variables`](./PolicyAuthorization/Local.postman_environment.json).
