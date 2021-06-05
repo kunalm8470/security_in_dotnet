@@ -12,7 +12,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
-namespace Api.Authentication
+namespace Api.Authentication.Handlers
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
@@ -73,13 +73,12 @@ namespace Api.Authentication
                     new Claim(ClaimTypes.Email, found.Email)
             };
             
-            ClaimsPrincipal principal = new(new[] 
+            ClaimsPrincipal principal = new(new[]
             { 
                 new ClaimsIdentity(claims, Scheme.Name)
             });
 
             AuthenticationTicket ticket = new(principal, Scheme.Name);
-            
             return AuthenticateResult.Success(ticket);
         }
     }

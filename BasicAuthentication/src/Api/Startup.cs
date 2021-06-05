@@ -1,4 +1,4 @@
-using Api.Authentication;
+using Api.Authentication.Handlers;
 using Core.Interfaces;
 using Core.Services;
 using Infrastructure.Data;

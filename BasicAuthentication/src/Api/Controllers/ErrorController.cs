@@ -1,20 +1,20 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class ErrorController : ControllerBase
     {
-        [HttpGet]
+        [Route("/Error")]
         public IActionResult HandleError()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
-            var exception = context.Error;
-            var errorMessage = exception.Message;
-            var stackTrace = exception.StackTrace;
+            Exception exception = context.Error;
+            string errorMessage = exception.Message;
+            string stackTrace = exception.StackTrace;
 
             return Problem(
                 detail: stackTrace,
