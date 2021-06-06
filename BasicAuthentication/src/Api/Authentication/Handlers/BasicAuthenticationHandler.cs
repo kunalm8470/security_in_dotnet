@@ -18,6 +18,7 @@ namespace Api.Authentication.Handlers
     {
         private readonly IUserService _userService;
         private readonly IPasswordService _passwordService;
+        private const string _realm = "Default realm";
 
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -38,14 +39,17 @@ namespace Api.Authentication.Handlers
 
         protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            // Skip anonymous routes
+            // Bypass authentication for anonymous routes
             Endpoint endpoint = Context.GetEndpoint();
             if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != default)
                 return AuthenticateResult.NoResult();
 
             if (!Request.Headers.ContainsKey("Authorization"))
+            {
+                Response.Headers.Add("WWW-Authenticate", string.Format(@"Basic realm=""{0}""", _realm));
                 return AuthenticateResult.Fail("Authorization Header missing!");
-
+            }
+                
             // Extract username and password from authorization header
             AuthenticationHeaderValue authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
             byte[] credentialBytes = Convert.FromBase64String(authHeader.Parameter);
@@ -57,10 +61,16 @@ namespace Api.Authentication.Handlers
             // Validate user credentials
             User found = await _userService.FetchUserAsync(username);
             if (found == default)
+            {
+                Response.Headers.Add("WWW-Authenticate", string.Format(@"Basic realm=""{0}""", _realm));
                 return AuthenticateResult.Fail("User not found!");
+            }
 
             if (!_passwordService.VerifyPassword(password, found.Password))
+            {
+                Response.Headers.Add("WWW-Authenticate", string.Format(@"Basic realm=""{0}""", _realm));
                 return AuthenticateResult.Fail("Incorrect password!");
+            }
 
             // Build claims and claim principal
             Claim[] claims = new[]
