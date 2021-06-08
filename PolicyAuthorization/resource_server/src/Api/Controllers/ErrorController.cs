@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System;
 
 namespace Api.Controllers
@@ -8,17 +9,30 @@ namespace Api.Controllers
     [ApiController]
     public class ErrorController : ControllerBase
     {
+        private readonly IHostEnvironment _hostEnvironment;
+        public ErrorController(IHostEnvironment hostEnvironment)
+        {
+            _hostEnvironment = hostEnvironment;
+        }
+
         [Route("/Error")]
         public IActionResult HandleError()
         {
-            var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
-            Exception exception = context.Error;
-            string errorMessage = exception.Message;
-            string stackTrace = exception.StackTrace;
+            if (_hostEnvironment.IsDevelopment())
+            {
+                var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
+                Exception exception = context.Error;
+
+                return Problem(
+                    detail: exception.Message,
+                    type: "Server Error",
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Internal Server Error"
+                );
+            }
 
             return Problem(
-                detail: stackTrace,
-                type: $"Server Error - {errorMessage}",
+                type: "Server Error",
                 statusCode: StatusCodes.Status500InternalServerError,
                 title: "Internal Server Error"
             );

@@ -2,24 +2,18 @@
 
 namespace Api.Models.Responses
 {
-    public class LoginResponse
+    public class AccessTokenResponse
     {
         [JsonPropertyName("access_token")]
         public string AccessToken { get; }
-        
+
         [JsonPropertyName("expires_in")]
         public int ExpiresIn { get; }
 
-        [JsonPropertyName("refresh_token")]
-        public string RefreshToken { get; }
-
-        public LoginResponse(string accessToken,
-            int expiresIn,
-            string refreshToken)
+        public AccessTokenResponse(string accessToken, int expiresIn) : base()
         {
             AccessToken = accessToken;
             ExpiresIn = expiresIn;
-            RefreshToken = refreshToken;
         }
     }
 }

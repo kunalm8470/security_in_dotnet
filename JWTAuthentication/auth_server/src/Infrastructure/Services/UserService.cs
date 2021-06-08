@@ -19,9 +19,9 @@ namespace Infrastructure.Services
             return await _repository.FirstOrDefaultAsync(new UserByUsernameSpecification(username));
         }
 
-        public async Task RegisterUserAsync(User user)
+        public async Task<User> RegisterUserAsync(User user)
         {
-            await _repository.AddAsync(user);
+            return await _repository.AddAsync(user);
         }
     }
 }

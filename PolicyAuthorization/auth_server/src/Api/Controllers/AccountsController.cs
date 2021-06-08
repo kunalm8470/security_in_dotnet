@@ -2,6 +2,7 @@
 using Api.Models.Responses;
 using AutoMapper;
 using Core.Entities;
+using Core.Exceptions;
 using Core.Services;
 using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -13,25 +14,28 @@ namespace Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly IUserService _service;
         private readonly IPasswordService _passwordService;
-        private readonly ITokenService _tokenService;
+        private readonly IAccessTokenService _accessTokenService;
+        private readonly IRefreshTokenService _refreshTokenService;
         private readonly IMapper _mapper;
         private readonly AuthenticationConfiguration _authConfig;
 
-        public UsersController(
+        public AccountsController(
             IUserService service,
             IPasswordService passwordService,
-            ITokenService tokenService,
+            IAccessTokenService accessTokenService,
+            IRefreshTokenService tokenService,
             IMapper mapper,
             AuthenticationConfiguration authConfig
         )
         {
             _service = service;
             _passwordService = passwordService;
-            _tokenService = tokenService;
+            _accessTokenService = accessTokenService;
+            _refreshTokenService = tokenService;
             _mapper = mapper;
             _authConfig = authConfig;
         }
@@ -42,8 +46,8 @@ namespace Api.Controllers
         {
             try
             {
-                await _service.RegisterUserAsync(_mapper.Map<RegisterUserDto, User>(dto));
-                return Ok();
+                User created = await _service.RegisterUserAsync(_mapper.Map<RegisterUserDto, User>(dto));
+                return CreatedAtAction("LoginUser", _mapper.Map<User, RegisterUserResponseDto>(created));
             }
             catch (UniqueConstraintException)
             {
@@ -53,7 +57,7 @@ namespace Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<ActionResult<LoginResponse>> LoginUserAsync([FromBody] LoginUserDto dto)
+        public async Task<ActionResult<RefreshTokenResponse>> LoginUserAsync([FromBody] LoginUserDto dto)
         {
             User found = await _service.FetchUserAsync(dto.Username);
             if (found == default)
@@ -66,11 +70,11 @@ namespace Api.Controllers
                 return Unauthorized(new HttpError("invalid_client", "Incorrect password!"));
             }
 
-            string accessToken = _tokenService.GenerateAccessToken(found);
-            string refreshToken = _tokenService.GenerateRefreshToken();
-            await _tokenService.PersistRefreshToken(refreshToken, found.Id);
+            string accessToken = _accessTokenService.Generate(found);
+            string refreshToken = _refreshTokenService.Generate();
+            await _refreshTokenService.PersistTokenAsync(refreshToken, found.Id);
 
-            LoginResponse response = new(accessToken, _authConfig.AccessTokenExpirationMinutes, refreshToken);
+            RefreshTokenResponse response = new(accessToken, _authConfig.AccessTokenExpirationMinutes, refreshToken);
             return Ok(response);
         }
 
@@ -78,36 +82,36 @@ namespace Api.Controllers
         [HttpPost("Token")]
         public async Task<ActionResult<RefreshTokenResponse>> RefreshTokenAsync([FromBody] RefreshTokenDto dto)
         {
-            // check refresh token is actually persisting or not
-            RefreshToken token = await _tokenService.FetchRefreshToken(dto.RefreshToken);
+            RefreshToken token = await _refreshTokenService.FetchTokenAsync(dto.RefreshToken);
             if (token == default)
             {
                 return Unauthorized(new HttpError("invalid_client", "Refresh token not found!"));
             }
 
-            // validate refresh token
-            if (!_tokenService.ValidateRefreshToken(token))
+            try
             {
-                return Unauthorized(new HttpError("invalid_client", "Invalid refresh token!"));
+                if (!_refreshTokenService.Validate(token))
+                    return Unauthorized(new HttpError("invalid_client", "Invalid refresh token!"));
             }
-
-            string accessToken = _tokenService.GenerateAccessToken(token.User);
-            RefreshTokenResponse response = new(accessToken, _authConfig.AccessTokenExpirationMinutes);
+            catch(RefreshTokenExpiredException)
+            {
+                return Unauthorized(new HttpError("invalid_client", "Refresh token expired!"));
+            }
+            
+            string accessToken = _accessTokenService.Generate(token.User);
+            AccessTokenResponse response = new(accessToken, _authConfig.AccessTokenExpirationMinutes);
             return Ok(response);
         }
       
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("Revoke")]
         public async Task<IActionResult> RevokeTokenAsync([FromBody] RevokeTokenDto dto)
         {
-            // check refresh token is actually persisting or not
-            RefreshToken token = await _tokenService.FetchRefreshToken(dto.Token);
-            if (token == default)
+            if (!await _refreshTokenService.TryDeleteTokenAsync(dto.Token))
             {
                 return Unauthorized(new HttpError("invalid_client", "Refresh token not found!"));
             }
 
-            await _tokenService.DeleteRefreshToken(dto.Token);
             return Ok();
         }
 
@@ -121,7 +125,7 @@ namespace Api.Controllers
                 return Unauthorized(new HttpError("invalid_client", "No user registered with the given id"));
             }
 
-            await _tokenService.DeleteRefreshTokenForUser(userId);
+            await _refreshTokenService.DeleteTokenByUserAsync(userId);
             return NoContent();
         }
     }

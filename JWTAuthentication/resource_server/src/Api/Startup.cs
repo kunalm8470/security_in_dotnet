@@ -39,11 +39,9 @@ namespace Api
                 RSA publicKey = RSA.Create();
                 publicKey.ImportFromPem(authenticationConfiguration.AccessTokenKeys.PublicKey);
 
-                SecurityKey key = new RsaSecurityKey(publicKey);
-
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = key,
+                    IssuerSigningKey = new RsaSecurityKey(publicKey),
                     ValidIssuer = authenticationConfiguration.Issuer,
                     ValidAudience = authenticationConfiguration.Audience,
                     ValidateIssuerSigningKey = true,
@@ -59,10 +57,7 @@ namespace Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseExceptionHandler("/Error");
 
             app.UseHttpsRedirection();
 

@@ -44,11 +44,9 @@ namespace Api
                 RSA publicKey = RSA.Create();
                 publicKey.ImportFromPem(authenticationConfiguration.AccessTokenKeys.PublicKey);
 
-                SecurityKey key = new RsaSecurityKey(publicKey);
-
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = key, 
+                    IssuerSigningKey = new RsaSecurityKey(publicKey), 
                     ValidIssuer = authenticationConfiguration.Issuer,
                     ValidAudience = authenticationConfiguration.Audience,
                     ValidateIssuerSigningKey = true,

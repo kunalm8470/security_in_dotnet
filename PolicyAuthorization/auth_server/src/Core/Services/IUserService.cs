@@ -5,7 +5,7 @@ namespace Core.Services
 {
     public interface IUserService
     {
-        Task RegisterUserAsync(User user);
-        Task<User> FetchUserAsync(string username);
+        public Task<User> RegisterUserAsync(User user);
+        public Task<User> FetchUserAsync(string username);
     }
 }

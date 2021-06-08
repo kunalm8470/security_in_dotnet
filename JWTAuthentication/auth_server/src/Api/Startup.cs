@@ -48,7 +48,8 @@ namespace Api
             // Register services
             services.AddTransient<IPasswordService, PasswordService>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IAccessTokenService, AccessTokenService>();
+            services.AddTransient<IRefreshTokenService, RefreshTokenService>();
 
             services.AddTransient(provider => new MapperConfiguration(cfg =>
             {
@@ -76,11 +77,9 @@ namespace Api
                 RSA publicKey = RSA.Create();
                 publicKey.ImportFromPem(authenticationConfiguration.AccessTokenKeys.PublicKey);
 
-                SecurityKey key = new RsaSecurityKey(publicKey);
-
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = key,
+                    IssuerSigningKey = new RsaSecurityKey(publicKey),
                     ValidIssuer = authenticationConfiguration.Issuer,
                     ValidAudience = authenticationConfiguration.Audience,
                     ValidateIssuerSigningKey = true,
