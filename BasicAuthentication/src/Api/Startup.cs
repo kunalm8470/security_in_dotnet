@@ -1,4 +1,6 @@
 using Api.Authentication.Handlers;
+using Api.Models;
+using AutoMapper;
 using Core.Interfaces;
 using Core.Services;
 using Infrastructure.Data;
@@ -31,6 +33,11 @@ namespace Api
 
             services.AddAutoMapper(typeof(Startup));
 
+            services.AddTransient(provider => new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new MappingProfile(provider.GetService<IPasswordService>()));
+            }).CreateMapper());
+
             // Register repositories
             services.AddScoped<IUserRepository, UserRepository>();
 
@@ -38,19 +45,9 @@ namespace Api
             services.AddTransient<IPasswordService, PasswordService>();
             services.AddScoped<IUserService, UserService>();
 
-            // configure basic authentication 
+            // Configure basic authentication 
             services.AddAuthentication("BasicAuthentication")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-                //.AllowCredentials());
-            });
 
             services.AddControllers();
         }
@@ -59,8 +56,6 @@ namespace Api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseExceptionHandler("/Error");
-
-          
 
             app.UseHttpsRedirection();
 

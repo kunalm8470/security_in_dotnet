@@ -16,7 +16,7 @@ namespace Api.Controllers
             string username = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
-            Todo[] todos = new[]
+            Todo[] todos = new Todo[]
             {
                 new Todo(1, "Buy groceries", false),
                 new Todo(2, "Clean house", true)

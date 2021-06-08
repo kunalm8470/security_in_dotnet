@@ -12,13 +12,13 @@ namespace Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly IUserService _service;
         private readonly IPasswordService _passwordService;
         private readonly IMapper _mapper;
 
-        public UsersController(
+        public AccountsController(
             IUserService service,
             IPasswordService passwordService,
             IMapper mapper
@@ -35,9 +35,7 @@ namespace Api.Controllers
         {
             try
             {
-                User u = _mapper.Map<RegisterUserDto, User>(dto);
-                u.Password = _passwordService.HashPassword(u.Password);
-                User created = await _service.RegisterUserAsync(u);
+                User created = await _service.RegisterUserAsync(_mapper.Map<RegisterUserDto, User>(dto));
                 return Ok(_mapper.Map<User, UserResponseDto>(created));
             }
             catch (UniqueConstraintException)

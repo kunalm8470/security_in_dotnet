@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
 using Core.Services;
+using Core.Specifications;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Services
@@ -15,7 +16,7 @@ namespace Infrastructure.Services
 
         public async Task<User> FetchUserAsync(string login)
         {
-            return await _repository.FirstOrDefaultAsync((user) => user.Username == login || user.Email == login);
+            return await _repository.FirstOrDefaultAsync(new UserByLoginSpecification(login));
         }
 
         public async Task<User> RegisterUserAsync(User user)
